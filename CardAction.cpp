@@ -340,11 +340,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case WM_CARD_REMOVED:
             {
                 int readerIndex = (int)wParam;
+                // Execute command regardless of reader list size
+                ExecuteCommand(g_config.removeCommand);
+                
+                // Update reader state if the reader still exists
                 if (readerIndex >= 0 && readerIndex < g_readers.size()) {
                     g_readers[readerIndex].hasCard = false;
-                    ExecuteCommand(g_config.removeCommand);
-                    UpdateTrayMenu();
                 }
+                UpdateTrayMenu();
             }
             break;
             
@@ -473,14 +476,12 @@ unsigned __stdcall CardMonitorThreadProc(void* pArg) {
             // Check for card events
             for (size_t i = 1; i <= readerCount; i++) {
                 if (rgReaderStates[i].dwEventState & SCARD_STATE_CHANGED) {
-                    bool wasPresent = (rgReaderStates[i].dwCurrentState & SCARD_STATE_PRESENT) != 0;
-                    bool isPresent = (rgReaderStates[i].dwEventState & SCARD_STATE_PRESENT) != 0;
                     
-                    if (!wasPresent && isPresent) {
+                    if (rgReaderStates[i].dwCurrentState - rgReaderStates[i].dwEventState == SCARD_STATE_INUSE) {
                         // Card inserted
                         PostMessage(g_hwnd, WM_CARD_INSERTED, (WPARAM)(i - 1), 0);
                     }
-                    else if (wasPresent && !isPresent) {
+                    else if ((rgReaderStates[i].dwEventState & SCARD_STATE_EMPTY) || (rgReaderStates[i].dwEventState & SCARD_STATE_UNAVAILABLE)) {
                         // Card removed
                         PostMessage(g_hwnd, WM_CARD_REMOVED, (WPARAM)(i - 1), 0);
                     }
