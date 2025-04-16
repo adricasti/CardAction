@@ -1,0 +1,34 @@
+name: Build CardAction
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x86, x64]
+        config: [debug, release]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Build CardAction
+      run: |
+        .\build.bat ${{ matrix.arch }} ${{ matrix.config }}
+      
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: CardAction-${{ matrix.arch }}-${{ matrix.config }}
+        path: build/${{ matrix.arch }}/${{ matrix.config }}/CardAction.exe
