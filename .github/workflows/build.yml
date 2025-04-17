@@ -11,17 +11,16 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        arch: [x86, x64]
-        config: [debug, release]
+        arch: [x64, arm64]
+        config: [release]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
-      
     - name: Setup Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: ${{ matrix.arch }}
 
     - name: Build CardAction
       run: |
