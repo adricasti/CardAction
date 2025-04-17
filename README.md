@@ -1,6 +1,6 @@
 # CardAction
 
-![Build Status](https://github.com/username/cardaction/actions/workflows/build.yml/badge.svg)
+![Build Status](https://github.com/adricasti/cardaction/actions/workflows/build.yml/badge.svg)
 
 This Windows application triggers events when a smart card is removed or inserted. You define the actions in a CardAction.ini file that looks like this:
 
